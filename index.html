@@ -1,354 +1,226 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Todo List</title>
+    <title>📈 Interactive S&P‑500 Mini‑Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- ----- CSS (in‑page) ----- -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-light: #fafafa;
+            --bg-dark:  #1e1e1e;
+            --txt-light: #222;
+            --txt-dark:  #eee;
+            --accent: #0066cc;
         }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            margin: 0;
+            font-family: system-ui, Arial, Helvetica, sans-serif;
+            background: var(--bg-light);
+            color: var(--txt-light);
+            transition: background .3s, color .3s;
         }
-
-        .container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 500px;
-            overflow: hidden;
-        }
-
-        header {
-            background: #4a6cf7;
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-
-        .stats {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 15px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .input-section {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .input-container {
-            display: flex;
-            gap: 10px;
-        }
-
-        #task-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        #task-input:focus {
-            border-color: #4a6cf7;
-            outline: none;
-        }
-
-        #add-btn {
-            background: #4a6cf7;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        #add-btn:hover {
-            background: #3a5ce4;
-        }
-
-        .controls {
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .filters button {
-            background: #f5f5f5;
-            border: none;
-            padding: 8px 15px;
-            margin: 0 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .filters button.active {
-            background: #4a6cf7;
-            color: white;
-        }
-
-        #clear-completed {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        #clear-completed:hover {
-            background: #ff5252;
-        }
-
-        .todo-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .todo-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .todo-item.completed .task-text {
-            text-decoration: line-through;
-            color: #888;
-        }
-
-        .todo-checkbox {
-            width: 20px;
-            height: 20px;
-            margin-right: 15px;
-            cursor: pointer;
-        }
-
-        .task-text {
-            flex: 1;
-            font-size: 1rem;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #ff6b6b;
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 5px 10px;
-            transition: color 0.3s;
-        }
-
-        .delete-btn:hover {
-            color: #ff5252;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #888;
-        }
-
-        footer {
-            background: #f8f9fa;
-            padding: 15px;
-            text-align: center;
-            color: #666;
-            font-size: 0.9rem;
+        .dark body { background: var(--bg-dark); color: var(--txt-dark); }
+        header { padding: 1rem 2rem; background: var(--accent); color: white; }
+        header h1 { margin: 0; font-size: 1.4rem; }
+        .container { padding: 1rem 2rem; max-width: 960px; margin: auto; }
+        .flex { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+        .flex > * { flex: 1 1 200px; }
+        input[type="text"] { width: 100%; padding: .5rem; font-size: 1rem; }
+        button { padding: .5rem 1rem; font-size: 1rem; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: .5rem; border-bottom: 1px solid #ccc; text-align: left; }
+        th { cursor: pointer; background: #f0f0f0; }
+        .dark th { background: #333; }
+        .theme-toggle { background: none; border: none; color: inherit; font-size: 1.2rem; }
+        canvas { max-width: 100%; height: auto; margin-top: 1rem; }
+        .error { color: #c00; margin-top: .5rem; }
+        @media (max-width:600px){
+            header h1{font-size:1.2rem;}
         }
     </style>
+
+    <!-- ----- Chart.js (CDN) ----- -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
-    <div class="container">
-        <header>
-            <h1>📝 Todo List</h1>
-            <div class="stats">
-                <span id="total-tasks">0 tasks</span>
-            </div>
-        </header>
+<header class="flex">
+    <h1>📈 S&P‑500 Mini‑Dashboard</h1>
+    <button class="theme-toggle" title="Toggle light/dark mode">🌙</button>
+</header>
 
-        <div class="input-section">
-            <div class="input-container">
-                <input type="text" id="task-input" placeholder="What needs to be done?">
-                <button id="add-btn">Add Task</button>
-            </div>
-        </div>
-
-        <div class="controls">
-            <div class="filters">
-                <button class="active" data-filter="all">All</button>
-                <button data-filter="active">Active</button>
-                <button data-filter="completed">Completed</button>
-            </div>
-            <button id="clear-completed">Clear Completed</button>
-        </div>
-
-        <div class="todo-list" id="todo-list">
-            <div class="empty-state" id="empty-state">
-                <h3>No tasks yet!</h3>
-                <p>Add a task above to get started.</p>
-            </div>
-        </div>
-
-        <footer>
-            Built with HTML, CSS & JavaScript
-        </footer>
+<div class="container">
+    <!-- ----- Controls ----- -->
+    <div class="flex">
+        <input type="text" id="tickerInput" placeholder="Enter ticker (e.g. AAPL)" autocomplete="off">
+        <button id="lookupBtn">Lookup</button>
     </div>
+    <div id="errorMsg" class="error"></div>
 
-    <script>
-        // DOM Elements
-        const taskInput = document.getElementById('task-input');
-        const addBtn = document.getElementById('add-btn');
-        const todoList = document.getElementById('todo-list');
-        const emptyState = document.getElementById('empty-state');
-        const totalTasksSpan = document.getElementById('total-tasks');
-        const filterButtons = document.querySelectorAll('.filters button');
-        const clearCompletedBtn = document.getElementById('clear-completed');
+    <!-- ----- Summary Table ----- -->
+    <table id="summaryTable">
+        <thead>
+            <tr>
+                <th data-key="symbol">Ticker</th>
+                <th data-key="price">Price (USD)</th>
+                <th data-key="high">Day High</th>
+                <th data-key="low">Day Low</th>
+                <th data-key="change">Change %</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-        // State
-        let todos = JSON.parse(localStorage.getItem('todos')) || [];
-        let currentFilter = 'all';
+    <!-- ----- Chart Container ----- -->
+    <canvas id="priceChart"></canvas>
+</div>
 
-        // Initialize
-        renderTodos();
-        updateStats();
+<!-- ----- JavaScript (in‑page) ----- -->
+<script>
+(() => {
+    // ---------- Config ----------
+    const API_KEY = 'YOUR_API_KEY_HERE'; // <-- replace with your Alpha Vantage key
+    const BASE_URL = 'https://www.alphavantage.co/query?';
+    const tickerInput = document.getElementById('tickerInput');
+    const lookupBtn   = document.getElementById('lookupBtn');
+    const errorMsg    = document.getElementById('errorMsg');
+    const tableBody   = document.querySelector('#summaryTable tbody');
+    const chartCanvas = document.getElementById('priceChart');
+    let priceChart = null;
+    let sortState = { key: null, asc: true };
 
-        // Event Listeners
-        addBtn.addEventListener('click', addTodo);
-        taskInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addTodo();
-        });
+    // ---------- Helper: fetch JSON ----------
+    async function fetchJSON(url) {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('Network error');
+        return await resp.json();
+    }
 
-        filterButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
-                renderTodos();
-            });
-        });
+    // ---------- API Calls ----------
+    async function getIntraday(symbol) {
+        const url = `${BASE_URL}function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=60min&apikey=${API_KEY}&outputsize=compact`;
+        const data = await fetchJSON(url);
+        if (data['Error Message']) throw new Error('Invalid symbol');
+        const series = data['Time Series (60min)'];
+        const latest = Object.entries(series)[0][1];
+        return {
+            price: parseFloat(latest['4. close']),
+            high : parseFloat(latest['2. high']),
+            low  : parseFloat(latest['3. low']),
+            change: ((parseFloat(latest['4. close']) - parseFloat(Object.entries(series).pop()[1]['4. close'])) / parseFloat(Object.entries(series).pop()[1]['4. close'])) * 100
+        };
+    }
 
-        clearCompletedBtn.addEventListener('click', clearCompleted);
+    async function getHistorical(symbol) {
+        const url = `${BASE_URL}function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${API_KEY}&outputsize=compact`;
+        const data = await fetchJSON(url);
+        if (data['Error Message']) throw new Error('Invalid symbol');
+        const series = data['Time Series (Daily)'];
+        const dates = Object.keys(series).slice(0,30).reverse(); // last 30 days
+        const prices = dates.map(d => parseFloat(series[d]['4. close']));
+        return { dates, prices };
+    }
 
-        // Functions
-        function addTodo() {
-            const text = taskInput.value.trim();
-            if (text) {
-                const todo = {
-                    id: Date.now(),
-                    text,
-                    completed: false
-                };
-                todos.push(todo);
-                saveToLocalStorage();
-                renderTodos();
-                updateStats();
-                taskInput.value = '';
-                taskInput.focus();
+    // ---------- UI Updates ----------
+    function renderRow(symbol, quote) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${symbol}</td>
+            <td>${quote.price.toFixed(2)}</td>
+            <td>${quote.high.toFixed(2)}</td>
+            <td>${quote.low.toFixed(2)}</td>
+            <td style="color:${quote.change>=0?'green':'red'}">
+                ${quote.change.toFixed(2)}%
+            </td>
+        `;
+        tableBody.appendChild(tr);
+    }
+
+    function clearTable() { tableBody.innerHTML = ''; }
+
+    function showError(msg) {
+        errorMsg.textContent = msg;
+        setTimeout(() => errorMsg.textContent = '', 4000);
+    }
+
+    function updateChart(dates, prices, symbol) {
+        if (priceChart) priceChart.destroy();
+        priceChart = new Chart(chartCanvas, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: `${symbol} – Last 30 Days`,
+                    data: prices,
+                    borderColor: '#0066cc',
+                    backgroundColor: 'rgba(0,102,204,0.1)',
+                    tension: 0.2,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { display: false },
+                    y: { beginAtZero: false }
+                }
             }
-        }
+        });
+    }
 
-        function toggleTodo(id) {
-            todos = todos.map(todo => 
-                todo.id === id ? {...todo, completed: !todo.completed} : todo
-            );
-            saveToLocalStorage();
-            renderTodos();
-            updateStats();
-        }
+    // ---------- Sorting ----------
+    function sortTable(key) {
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        const asc = sortState.key === key ? !sortState.asc : true; // toggle if same column
+        rows.sort((a, b) => {
+            const aVal = a.querySelector(`td:nth-child(${key+1})`).textContent.trim();
+            const bVal = b.querySelector(`td:nth-child(${key+1})`).textContent.trim();
+            const numA = parseFloat(aVal.replace('%',''));
+            const numB = parseFloat(bVal.replace('%',''));
+            const compare = isNaN(numA) ? aVal.localeCompare(bVal) : numA - numB;
+            return asc ? compare : -compare;
+        });
+        tableBody.innerHTML = '';
+        rows.forEach(r => tableBody.appendChild(r));
+        sortState = { key, asc };
+    }
 
-        function deleteTodo(id) {
-            todos = todos.filter(todo => todo.id !== id);
-            saveToLocalStorage();
-            renderTodos();
-            updateStats();
-        }
+    // ---------- Theme Toggle ----------
+    const themeBtn = document.querySelector('.theme-toggle');
+    function setTheme(dark) {
+        document.documentElement.classList.toggle('dark', dark);
+        themeBtn.textContent = dark ? '☀️' : '🌙';
+    }
+    themeBtn.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
+    // initialise with system preference
+    setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-        function clearCompleted() {
-            todos = todos.filter(todo => !todo.completed);
-            saveToLocalStorage();
-            renderTodos();
-            updateStats();
+    // ---------- Event Listeners ----------
+    lookupBtn.addEventListener('click', async () => {
+        const symbol = tickerInput.value.trim().toUpperCase();
+        if (!symbol) return;
+        try {
+            const quote = await getIntraday(symbol);
+            clearTable();
+            renderRow(symbol, quote);
+            const hist = await getHistorical(symbol);
+            updateChart(hist.dates, hist.prices, symbol);
+        } catch (e) {
+            showError(e.message);
         }
+    });
 
-        function renderTodos() {
-            const filteredTodos = todos.filter(todo => {
-                if (currentFilter === 'active') return !todo.completed;
-                if (currentFilter === 'completed') return todo.completed;
-                return true;
-            });
+    // press Enter in input triggers the lookup
+    tickerInput.addEventListener('keyup', e => { if (e.key === 'Enter') lookupBtn.click(); });
 
-            if (filteredTodos.length === 0) {
-                todoList.innerHTML = `
-                    <div class="empty-state" id="empty-state">
-                        <h3>No ${currentFilter !== 'all' ? currentFilter : ''} tasks!</h3>
-                        <p>${currentFilter === 'all' ? 'Add a task above to get started.' : 'Try a different filter.'}</p>
-                    </div>
-                `;
-            } else {
-                todoList.innerHTML = filteredTodos.map(todo => `
-                    <div class="todo-item ${todo.completed ? 'completed' : ''}">
-                        <input type="checkbox" class="todo-checkbox" 
-                               ${todo.completed ? 'checked' : ''} 
-                               onchange="toggleTodo(${todo.id})">
-                        <span class="task-text">${todo.text}</span>
-                        <button class="delete-btn" onclick="deleteTodo(${todo.id})">
-                            ✕
-                        </button>
-                    </div>
-                `).join('');
-            }
-        }
+    // make table headers sortable
+    document.querySelectorAll('#summaryTable th').forEach((th, idx) => {
+        th.addEventListener('click', () => sortTable(idx));
+    });
 
-        function updateStats() {
-            const total = todos.length;
-            const completed = todos.filter(t => t.completed).length;
-            totalTasksSpan.textContent = `${total} task${total !== 1 ? 's' : ''} (${completed} completed)`;
-        }
-
-        function saveToLocalStorage() {
-            localStorage.setItem('todos', JSON.stringify(todos));
-        }
-    </script>
+})();
+</script>
 </body>
 </html>
