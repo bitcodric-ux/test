@@ -1,226 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>📈 Interactive S&P‑500 Mini‑Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Joyful Playground 🌈</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* --------------------------------------------------------------
+   Global reset & variables – joyful color palette
+   -------------------------------------------------------------- */
+:root {
+    --bg-primary: #fdf6e3;
+    --bg-accent: #fff8e1;
+    --text-primary: #2e3440;
+    --text-muted: #5e81ac;
+    --accent-1: #a3be8c;
+    --accent-2: #ebcb8b;
+    --accent-3: #bf616a;
+    --shadow: rgba(0,0,0,0.12);
+    --radius: .6rem;
+    --transition: .3s ease;
+    --font-main: 'Helvetica Neue', Arial, sans-serif;
+}
+*,
+*::before,
+*::after { box-sizing: border-box; margin:0; padding:0; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: var(--font-main);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+h1, h2 { margin-bottom: .5rem; }
+p { margin-bottom: 1rem; }
 
-    <!-- ----- CSS (in‑page) ----- -->
-    <style>
-        :root {
-            --bg-light: #fafafa;
-            --bg-dark:  #1e1e1e;
-            --txt-light: #222;
-            --txt-dark:  #eee;
-            --accent: #0066cc;
-        }
-        body {
-            margin: 0;
-            font-family: system-ui, Arial, Helvetica, sans-serif;
-            background: var(--bg-light);
-            color: var(--txt-light);
-            transition: background .3s, color .3s;
-        }
-        .dark body { background: var(--bg-dark); color: var(--txt-dark); }
-        header { padding: 1rem 2rem; background: var(--accent); color: white; }
-        header h1 { margin: 0; font-size: 1.4rem; }
-        .container { padding: 1rem 2rem; max-width: 960px; margin: auto; }
-        .flex { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
-        .flex > * { flex: 1 1 200px; }
-        input[type="text"] { width: 100%; padding: .5rem; font-size: 1rem; }
-        button { padding: .5rem 1rem; font-size: 1rem; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: .5rem; border-bottom: 1px solid #ccc; text-align: left; }
-        th { cursor: pointer; background: #f0f0f0; }
-        .dark th { background: #333; }
-        .theme-toggle { background: none; border: none; color: inherit; font-size: 1.2rem; }
-        canvas { max-width: 100%; height: auto; margin-top: 1rem; }
-        .error { color: #c00; margin-top: .5rem; }
-        @media (max-width:600px){
-            header h1{font-size:1.2rem;}
-        }
-    </style>
+/* --------------------------------------------------------------
+   Layout – centered card with breathing space
+   -------------------------------------------------------------- */
+.container {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background: var(--bg-accent);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px var(--shadow);
+}
+header { text-align: center; margin-bottom: 2rem; }
+header h1 { font-size: 2.5rem; color: var(--accent-1); }
+header p { color: var(--text-muted); }
 
-    <!-- ----- Chart.js (CDN) ----- -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+/* --------------------------------------------------------------
+   Interactive widgets
+   -------------------------------------------------------------- */
+.button {
+    display: inline-block;
+    padding: .6rem 1.2rem;
+    margin: .4rem;
+    background: var(--accent-2);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+}
+.button:hover,
+.button:focus { background: var(--accent-3); outline: none; }
+
+.toggle {
+    position: relative;
+    width: 60px;
+    height: 34px;
+}
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--accent-1);
+    border-radius: 34px;
+    transition: var(--transition);
+}
+.slider::before {
+    content:"";
+    position: absolute;
+    height: 26px;
+    width: 26px;
+    left:4px;
+    bottom:4px;
+    background:#fff;
+    border-radius:50%;
+    transition: var(--transition);
+}
+input:checked + .slider {
+    background: var(--accent-3);
+}
+input:checked + .slider::before {
+    transform: translateX(26px);
+}
+
+/* --------------------------------------------------------------
+   Card grid – each card reacts to hover/focus
+   -------------------------------------------------------------- */
+.grid {
+    display: grid;
+    gap: 1.2rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.card {
+    background:#fff;
+    border-radius: var(--radius);
+    padding:1rem;
+    box-shadow:0 2px 6px var(--shadow);
+    transition: var(--transition);
+    cursor:pointer;
+}
+.card:hover,
+.card:focus-within {
+    transform:translateY(-4px);
+    box-shadow:0 6px 12px var(--shadow);
+}
+.card h3 { margin-bottom:.4rem; color:var(--accent-2); }
+.card p { font-size:.9rem; color:var(--text-muted); }
+
+/* --------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------- */
+footer {
+    margin-top:auto;
+    padding:1rem;
+    text-align:center;
+    font-size:.85rem;
+    color:var(--text-muted);
+}
+</style>
 </head>
-
 <body>
-<header class="flex">
-    <h1>📈 S&P‑500 Mini‑Dashboard</h1>
-    <button class="theme-toggle" title="Toggle light/dark mode">🌙</button>
-</header>
 
-<div class="container">
-    <!-- ----- Controls ----- -->
-    <div class="flex">
-        <input type="text" id="tickerInput" placeholder="Enter ticker (e.g. AAPL)" autocomplete="off">
-        <button id="lookupBtn">Lookup</button>
-    </div>
-    <div id="errorMsg" class="error"></div>
+<div class="container" role="main">
+    <header>
+        <h1>Welcome to the Joyful Playground 🌈</h1>
+        <p>Press the buttons, toggle the switch, or click a card – every interaction sparks a tiny animation.</p>
+    </header>
 
-    <!-- ----- Summary Table ----- -->
-    <table id="summaryTable">
-        <thead>
-            <tr>
-                <th data-key="symbol">Ticker</th>
-                <th data-key="price">Price (USD)</th>
-                <th data-key="high">Day High</th>
-                <th data-key="low">Day Low</th>
-                <th data-key="change">Change %</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <!-- Buttons -->
+    <section aria-label="Action buttons">
+        <button class="button" id="confettiBtn">🎉 Celebrate!</button>
+        <button class="button" id="colorBtn">🎨 Change Theme</button>
+    </section>
 
-    <!-- ----- Chart Container ----- -->
-    <canvas id="priceChart"></canvas>
+    <!-- Dark‑mode toggle -->
+    <section style="margin:1.5rem 0;" aria-label="Theme toggle">
+        <label class="toggle" tabindex="0">
+            <input type="checkbox" id="themeToggle" aria-label="Toggle dark mode">
+            <span class="slider"></span>
+        </label>
+        <span style="margin-left:.8rem; vertical-align:middle;">Dark mode</span>
+    </section>
+
+    <!-- Interactive cards -->
+    <section class="grid" aria-label="Fun cards">
+        <div class="card" tabindex="0" data-msg="You found the hidden unicorn! 🦄">
+            <h3>Unicorn</h3>
+            <p>Click for a surprise.</p>
+        </div>
+        <div class="card" tabindex="0" data-msg="A friendly robot says hello! 🤖">
+            <h3>Robot</h3>
+            <p>Press me.</p>
+        </div>
+        <div class="card" tabindex="0" data-msg="You unlocked a rainbow! 🌈">
+            <h3>Rainbow</h3>
+            <p>Give it a tap.</p>
+        </div>
+        <div class="card" tabindex="0" data-msg="A tiny star twinkles ✨">
+            <h3>Star</h3>
+            <p>Try it.</p>
+        </div>
+    </section>
 </div>
 
-<!-- ----- JavaScript (in‑page) ----- -->
+<footer>
+    © 2024 Joyful Playground – pure HTML/CSS/JS, no external libs.
+</footer>
+
 <script>
-(() => {
-    // ---------- Config ----------
-    const API_KEY = 'YOUR_API_KEY_HERE'; // <-- replace with your Alpha Vantage key
-    const BASE_URL = 'https://www.alphavantage.co/query?';
-    const tickerInput = document.getElementById('tickerInput');
-    const lookupBtn   = document.getElementById('lookupBtn');
-    const errorMsg    = document.getElementById('errorMsg');
-    const tableBody   = document.querySelector('#summaryTable tbody');
-    const chartCanvas = document.getElementById('priceChart');
-    let priceChart = null;
-    let sortState = { key: null, asc: true };
-
-    // ---------- Helper: fetch JSON ----------
-    async function fetchJSON(url) {
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error('Network error');
-        return await resp.json();
-    }
-
-    // ---------- API Calls ----------
-    async function getIntraday(symbol) {
-        const url = `${BASE_URL}function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=60min&apikey=${API_KEY}&outputsize=compact`;
-        const data = await fetchJSON(url);
-        if (data['Error Message']) throw new Error('Invalid symbol');
-        const series = data['Time Series (60min)'];
-        const latest = Object.entries(series)[0][1];
-        return {
-            price: parseFloat(latest['4. close']),
-            high : parseFloat(latest['2. high']),
-            low  : parseFloat(latest['3. low']),
-            change: ((parseFloat(latest['4. close']) - parseFloat(Object.entries(series).pop()[1]['4. close'])) / parseFloat(Object.entries(series).pop()[1]['4. close'])) * 100
-        };
-    }
-
-    async function getHistorical(symbol) {
-        const url = `${BASE_URL}function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${API_KEY}&outputsize=compact`;
-        const data = await fetchJSON(url);
-        if (data['Error Message']) throw new Error('Invalid symbol');
-        const series = data['Time Series (Daily)'];
-        const dates = Object.keys(series).slice(0,30).reverse(); // last 30 days
-        const prices = dates.map(d => parseFloat(series[d]['4. close']));
-        return { dates, prices };
-    }
-
-    // ---------- UI Updates ----------
-    function renderRow(symbol, quote) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${symbol}</td>
-            <td>${quote.price.toFixed(2)}</td>
-            <td>${quote.high.toFixed(2)}</td>
-            <td>${quote.low.toFixed(2)}</td>
-            <td style="color:${quote.change>=0?'green':'red'}">
-                ${quote.change.toFixed(2)}%
-            </td>
-        `;
-        tableBody.appendChild(tr);
-    }
-
-    function clearTable() { tableBody.innerHTML = ''; }
-
-    function showError(msg) {
-        errorMsg.textContent = msg;
-        setTimeout(() => errorMsg.textContent = '', 4000);
-    }
-
-    function updateChart(dates, prices, symbol) {
-        if (priceChart) priceChart.destroy();
-        priceChart = new Chart(chartCanvas, {
-            type: 'line',
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: `${symbol} – Last 30 Days`,
-                    data: prices,
-                    borderColor: '#0066cc',
-                    backgroundColor: 'rgba(0,102,204,0.1)',
-                    tension: 0.2,
-                    fill: true,
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: { display: false },
-                    y: { beginAtZero: false }
-                }
-            }
+/* --------------------------------------------------------------
+   Utility: simple confetti effect (canvas‑free, DOM‑based)
+   -------------------------------------------------------------- */
+function launchConfetti() {
+    const colors = ['#ff6b6b','#feca57','#48dbfb','#1dd1a1','#5f27cd'];
+    const confettiCount = 30;
+    for(let i=0;i<confettiCount;i++){
+        const div = document.createElement('div');
+        div.style.position='fixed';
+        div.style.left = Math.random()*100+'vw';
+        div.style.top = '-10px';
+        div.style.width='8px';
+        div.style.height='8px';
+        div.style.background=colors[Math.floor(Math.random()*colors.length)];
+        div.style.borderRadius='50%';
+        div.style.pointerEvents='none';
+        div.style.zIndex='9999';
+        div.style.transition=`transform 1.2s ease-out, opacity 1.2s`;
+        document.body.appendChild(div);
+        requestAnimationFrame(()=> {
+            div.style.transform=`translateY(${window.innerHeight+20}px) rotate(${Math.random()*360}deg)`;
+            div.style.opacity='0';
         });
+        setTimeout(()=> div.remove(), 1300);
     }
+}
 
-    // ---------- Sorting ----------
-    function sortTable(key) {
-        const rows = Array.from(tableBody.querySelectorAll('tr'));
-        const asc = sortState.key === key ? !sortState.asc : true; // toggle if same column
-        rows.sort((a, b) => {
-            const aVal = a.querySelector(`td:nth-child(${key+1})`).textContent.trim();
-            const bVal = b.querySelector(`td:nth-child(${key+1})`).textContent.trim();
-            const numA = parseFloat(aVal.replace('%',''));
-            const numB = parseFloat(bVal.replace('%',''));
-            const compare = isNaN(numA) ? aVal.localeCompare(bVal) : numA - numB;
-            return asc ? compare : -compare;
-        });
-        tableBody.innerHTML = '';
-        rows.forEach(r => tableBody.appendChild(r));
-        sortState = { key, asc };
+/* --------------------------------------------------------------
+   Theme handling – light/dark toggle + random pastel palette
+   -------------------------------------------------------------- */
+const root = document.documentElement;
+function setDark(isDark){
+    if(isDark){
+        root.style.setProperty('--bg-primary','#2e3440');
+        root.style.setProperty('--bg-accent','#3b4252');
+        root.style.setProperty('--text-primary','#d8dee9');
+        root.style.setProperty('--text-muted','#81a1c1');
+    }else{
+        root.style.setProperty('--bg-primary','#fdf6e3');
+        root.style.setProperty('--bg-accent','#fff8e1');
+        root.style.setProperty('--text-primary','#2e3440');
+        root.style.setProperty('--text-muted','#5e81ac');
     }
+}
+document.getElementById('themeToggle').addEventListener('change', e=>{
+    setDark(e.target.checked);
+});
 
-    // ---------- Theme Toggle ----------
-    const themeBtn = document.querySelector('.theme-toggle');
-    function setTheme(dark) {
-        document.documentElement.classList.toggle('dark', dark);
-        themeBtn.textContent = dark ? '☀️' : '🌙';
-    }
-    themeBtn.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
-    // initialise with system preference
-    setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
+/* --------------------------------------------------------------
+   Random pastel theme on button click
+   -------------------------------------------------------------- */
+function randomPastel(){
+    const pastel = () => `hsl(${Math.random()*360},70%,85%)`;
+    root.style.setProperty('--bg-primary', pastel());
+    root.style.setProperty('--bg-accent', pastel());
+    root.style.setProperty('--accent-1', pastel());
+    root.style.setProperty('--accent-2', pastel());
+    root.style.setProperty('--accent-3', pastel());
+}
 
-    // ---------- Event Listeners ----------
-    lookupBtn.addEventListener('click', async () => {
-        const symbol = tickerInput.value.trim().toUpperCase();
-        if (!symbol) return;
-        try {
-            const quote = await getIntraday(symbol);
-            clearTable();
-            renderRow(symbol, quote);
-            const hist = await getHistorical(symbol);
-            updateChart(hist.dates, hist.prices, symbol);
-        } catch (e) {
-            showError(e.message);
+/* --------------------------------------------------------------
+   Card interaction – show toast with data‑msg attribute
+   -------------------------------------------------------------- */
+function showToast(msg){
+    const toast = document.createElement('div');
+    toast.textContent = msg;
+    toast.style.position='fixed';
+    toast.style.bottom='2rem';
+    toast.style.left='50%';
+    toast.style.transform='translateX(-50%)';
+    toast.style.background='rgba(0,0,0,0.75)';
+    toast.style.color='#fff';
+    toast.style.padding='0.8rem 1.2rem';
+    toast.style.borderRadius='var(--radius)';
+    toast.style.zIndex='10000';
+    toast.style.opacity='0';
+    toast.style.transition='opacity .3s';
+    document.body.appendChild(toast);
+    requestAnimationFrame(()=> toast.style.opacity='1');
+    setTimeout(()=> {
+        toast.style.opacity='0';
+        toast.addEventListener('transitionend',()=> toast.remove());
+    }, 2000);
+}
+document.querySelectorAll('.card').forEach(card=>{
+    card.addEventListener('click',()=> {
+        const msg = card.dataset.msg || 'You clicked!';
+        showToast(msg);
+        card.animate([
+            { transform:'scale(1)' },
+            { transform:'scale(1.07)' },
+            { transform:'scale(1)' }
+        ], { duration:300, easing:'ease-out' });
+    });
+    // Keyboard accessibility – activate on Enter/Space
+    card.addEventListener('keydown', e=>{
+        if(e.key==='Enter' || e.key===' ') {
+            e.preventDefault();
+            card.click();
         }
     });
+});
 
-    // press Enter in input triggers the lookup
-    tickerInput.addEventListener('keyup', e => { if (e.key === 'Enter') lookupBtn.click(); });
+/* --------------------------------------------------------------
+   Button actions
+   -------------------------------------------------------------- */
+document.getElementById('confettiBtn').addEventListener('click', launchConfetti);
+document.getElementById('colorBtn').addEventListener('click', randomPastel);
 
-    // make table headers sortable
-    document.querySelectorAll('#summaryTable th').forEach((th, idx) => {
-        th.addEventListener('click', () => sortTable(idx));
-    });
-
-})();
+/* --------------------------------------------------------------
+   Initial accessibility tweaks
+   -------------------------------------------------------------- */
+document.querySelectorAll('button, .card, input').forEach(el=> {
+    el.setAttribute('tabindex','0');
+});
 </script>
 </body>
 </html>
